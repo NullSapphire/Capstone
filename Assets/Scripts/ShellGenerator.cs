@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class ShellGenerator : MonoBehaviour
 {
@@ -60,6 +61,11 @@ public class ShellGenerator : MonoBehaviour
             
             #region GET DATA FOR COMPUTE SHADER
             shellMesh = new Mesh();
+            if (originalMesh.vertexCount * shellCount > 65535 && !originalMesh.indexFormat.Equals(IndexFormat.UInt32))
+            {
+                Debug.LogWarning("Shell mesh will exceed 16-bit index limit. Setting 32-bit indices.");
+                shellMesh.indexFormat = IndexFormat.UInt32;
+            }
             
             Vector3[] vertices = new Vector3[originalMesh.vertexCount * shellCount];
             int[] triangles = new int[originalMesh.triangles.Length * shellCount];
@@ -73,11 +79,11 @@ public class ShellGenerator : MonoBehaviour
             normalBuffer.GetData(normals);
             colorBuffer.GetData(colors);
             
-            shellMesh.vertices = vertices;
-            shellMesh.triangles = triangles;
-            shellMesh.uv = uvs;
-            shellMesh.normals = normals;
-            shellMesh.colors = colors;
+            shellMesh.SetVertices(vertices);
+            shellMesh.SetTriangles(triangles, 0);
+            shellMesh.SetUVs(0, uvs);
+            shellMesh.SetNormals(normals);
+            shellMesh.SetColors(colors);
             
             GetComponent<MeshFilter>().sharedMesh = shellMesh;
             #endregion

@@ -2,7 +2,7 @@ Shader "Capstone/ShellTexture"
 {
     Properties
     {
-        [NoScaleOffset] _FlowTex ("FlowTexture", 2D) = "black" {}
+        _FlowTex ("FlowTexture", 2D) = "black" {}
         [MainColor] _Color ("MainColor", Color) = (1, 1, 1, 1)
         
         _aoFactor ("AmbientOcclusionFactor", Range(0, 1)) = 0.5
@@ -29,12 +29,15 @@ Shader "Capstone/ShellTexture"
                 "LightMode"="UniversalForward"
             }
 
+            Cull Off
+
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
 
             #pragma multi_compile_fog
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOW_SCREEN
+            #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
 
             #include "ShellTextureShader.hlsl"
             ENDHLSL

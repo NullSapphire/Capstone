@@ -7,6 +7,7 @@ struct appdata
     float2 uv : TEXCOORD0;
     float4 color : COLOR;
     float3 normal : NORMAL;
+    float3 tangent : TANGENT;
 };
 
 struct Interpolator
@@ -29,19 +30,26 @@ CBUFFER_START(UnityPerMaterial)
     float _maxDisplacement;
     vector _gridDimensions;
     vector _scrollSpeed;
+    float4 _FlowTex_ST;
 CBUFFER_END
 
 Interpolator vert(appdata v)
 {
     Interpolator o;
 
-    float2 scrollingUV = v.uv + _Time.y * _scrollSpeed.xy;
-    float2 flowSample = pow(v.color, 2) * _maxDisplacement * SAMPLE_TEXTURE2D_GRAD(_FlowTex, sampler_FlowTex, scrollingUV, 0, 0);
+    float2 scrollingUV = TRANSFORM_TEX(v.uv + _Time.y * _scrollSpeed.xy, _FlowTex);
+    float2 flowSample = pow(v.color, 2) * _maxDisplacement * (SAMPLE_TEXTURE2D_GRAD(_FlowTex, sampler_FlowTex, scrollingUV, 0, 0) - 0.5) * 2;
     
-    o.vertex = TransformObjectToHClip(v.vertex + float3(flowSample.x, 0, flowSample.y));
+    float3 displacementTS = float3(flowSample.x, 0, flowSample.y);
+    float displacementMag = length(displacementTS);
+
+    float3x3 tangentToWorld = CreateTangentToWorld(SafeNormalize(v.normal), SafeNormalize(v.tangent), 1);
+    float3 displacementOS = SafeNormalize(TransformTangentToObject(SafeNormalize(displacementTS), tangentToWorld)) * displacementMag;
+
+    o.vertex = TransformObjectToHClip(v.vertex + displacementOS);
     o.uv = v.uv;
     o.color = v.color;
-    o.normalWS = TransformObjectToWorld(v.normal);
+    o.normalWS = TransformObjectToWorldNormal(v.normal);
 
     // Calculate fog factor
     o.fogCoord = ComputeFogFactor(o.vertex.z);
@@ -72,18 +80,25 @@ float4 frag(Interpolator i) : SV_Target
 {
     // sample the texture
     float4 col = GrassShapeGenerator(i);
-    return i.color;
+
     if(col.r <= i.color.r)
     {
         discard;
     }
 
     Light L = GetMainLight(TransformWorldToShadowCoord(i.positionWS));
-    float N = normalize(i.normalWS);
+    float3 N = normalize(i.normalWS);
     
-    col = _Color * lerp(_aoFactor, 1.0f, i.color.r);
-    col *= float4(((dot(N, L.direction) * 0.5f + 0.5f) * L.shadowAttenuation * L.color + SampleSH(N)), 1);
+    float3 lightVal = (dot(N, L.direction) * 0.5f + 0.5f) * L.shadowAttenuation * L.color + SampleSH(N);
     
+    for (int j = 0; j < GetAdditionalLightsCount(); j++)
+	{
+		//Debug.Log("Entering extra lightsource");
+		Light L = GetAdditionalLight(j, i.positionWS);
+        lightVal += (dot(N, L.direction) * 0.5f + 0.5f) * L.shadowAttenuation * L.color * L.distanceAttenuation;
+	}
+    col = float4(lightVal, 1) * _Color * lerp(_aoFactor, 1.0f, i.color.r);
+
     // Apply fog
     col.rgb = MixFog(col.rgb, i.fogCoord);
 
