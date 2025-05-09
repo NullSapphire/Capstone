@@ -7,7 +7,7 @@ Shader "Capstone/ShellTexture"
         
         _aoFactor ("AmbientOcclusionFactor", Range(0, 1)) = 0.5
         _gridDimensions ("GridDimensions", Vector) = (64, 64, 0, 0)
-        _minHeight ("MinimumHeight", Range(0, 1)) = 0.5
+        _minHeight ("MinimumHeight", Range(0.00001, 1)) = 0.5
         _scrollSpeed ("ScrollSpeed", Vector) = (1, 1, 0, 0)
         _maxDisplacement ("MaxDisplacement", Range(0, 1)) = 0.5
     }

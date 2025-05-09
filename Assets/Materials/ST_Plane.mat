@@ -62,7 +62,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _FlowTex:
-        m_Texture: {fileID: 2800000, guid: b44c890c783c4d84f92a8ecd12689530, type: 3}
+        m_Texture: {fileID: 2800000, guid: 64f54a604d6c58f4792f6a03990b3ab9, type: 3}
         m_Scale: {x: 4, y: 4}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
@@ -130,15 +130,15 @@ Material:
     - _Surface: 0
     - _WorkflowMode: 1
     - _ZWrite: 1
-    - _aoFactor: 0
-    - _maxDisplacement: 0.104
-    - _minHeight: 0.405
+    - _aoFactor: 0.067
+    - _maxDisplacement: 0.262
+    - _minHeight: 0.402
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 0.1716981, g: 1, b: 0.3193163, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _gridDimensions: {r: 512, g: 512, b: 0, a: 0}
-    - _scrollSpeed: {r: 0.1, g: 0.1, b: 0, a: 0}
+    - _gridDimensions: {r: 1024, g: 1024, b: 0, a: 0}
+    - _scrollSpeed: {r: 0.5, g: 0.5, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
